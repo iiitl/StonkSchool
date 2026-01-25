@@ -1,26 +1,280 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Groww-inspired Light Theme with Green Accent */
+  --primary: #00B386;
+  --primary-hover: #0AC18E;
+  --primary-light: #E8F8F3;
+  --primary-dark: #009973;
+  
+  /* Background Colors */
+  --background: #FFFFFF;
+  --background-secondary: #F9FAFB;
+  --background-tertiary: #F3F4F6;
+  
+  /* Text Colors */
+  --foreground: #1F2937;
+  --foreground-secondary: #6B7280;
+  --foreground-tertiary: #9CA3AF;
+  
+  /* Border Colors */
+  --border: #E5E7EB;
+  --border-light: #F3F4F6;
+  
+  /* Status Colors */
+  --success: #00B386;
+  --success-light: #D1FAE5;
+  --danger: #EF4444;
+  --danger-light: #FEE2E2;
+  --warning: #F59E0B;
+  --warning-light: #FEF3C7;
+  
+  /* Trading Colors */
+  --buy: #00B386;
+  --sell: #EF4444;
+  --profit: #00B386;
+  --loss: #EF4444;
+  
+  /* Chart Colors */
+  --chart-bg: #FFFFFF;
+  --chart-grid: #F3F4F6;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
+  background: var(--background-secondary);
+  color: var(--foreground);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility Classes */
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--foreground-secondary); }
+.text-tertiary { color: var(--foreground-tertiary); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-warning { color: var(--warning); }
+.text-profit { color: var(--profit); }
+.text-loss { color: var(--loss); }
+
+.bg-primary { background-color: var(--primary); }
+.bg-primary-light { background-color: var(--primary-light); }
+.bg-secondary { background-color: var(--background-secondary); }
+
+/* Trading Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-buy {
+  background-color: var(--buy);
+  color: white;
+}
+
+.btn-buy:hover {
+  background-color: #009973;
+}
+
+.btn-sell {
+  background-color: var(--sell);
+  color: white;
+}
+
+.btn-sell:hover {
+  background-color: #DC2626;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.btn-outline:hover {
+  background-color: var(--background-tertiary);
+}
+
+.btn-outline.active {
+  border-color: var(--primary);
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+/* Card Styles */
+.card {
+  background: var(--background);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--foreground);
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+/* Input Styles */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.input-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--foreground-secondary);
+  margin-bottom: 0.5rem;
+}
+
+/* P&L Animation */
+@keyframes flash-green {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: var(--success-light); }
+}
+
+@keyframes flash-red {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: var(--danger-light); }
+}
+
+.pnl-flash-positive {
+  animation: flash-green 0.5s ease;
+}
+
+.pnl-flash-negative {
+  animation: flash-red 0.5s ease;
+}
+
+/* Margin Status Colors */
+.margin-healthy { color: var(--success); }
+.margin-warning { color: var(--warning); }
+.margin-danger { color: var(--danger); }
+
+/* Health Bar */
+.health-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--background-tertiary);
+  overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.health-bar-fill.healthy { background: var(--success); }
+.health-bar-fill.warning { background: var(--warning); }
+.health-bar-fill.danger { background: var(--danger); }
+
+/* Table Styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground-secondary);
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--foreground);
+}
+
+.table tr:hover {
+  background: var(--background-secondary);
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-tertiary);
 }

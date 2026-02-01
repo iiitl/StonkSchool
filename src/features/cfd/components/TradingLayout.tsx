@@ -7,15 +7,95 @@ import OrderForm from './OrderForm';
 import PositionTable from './PositionTable';
 import TradeHistory from './TradeHistory';
 import MarginCallModal from './MarginCallModal';
-import { usePriceSimulation } from '../hooks/usePriceSimulation';
+import { useCfd } from '../store/cfdStore';
+import { useWebSocketPrices } from '../hooks/useWebSocketPrices';
 
 type BottomTab = 'positions' | 'orders' | 'history';
 
 export default function TradingLayout() {
   const [activeTab, setActiveTab] = useState<BottomTab>('positions');
+  const { updatePrices, setPriceConnected, isLoading, error } = useCfd();
   
-  // Enable real-time price simulation
-  usePriceSimulation(true);
+  // Connect to real-time price feed
+  useWebSocketPrices({
+    enabled: true,
+    onPriceUpdate: updatePrices,
+    onConnectionChange: setPriceConnected,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="trading-layout">
+        <div className="loading-container">
+          <div className="loading-spinner" />
+          <p>Loading trading data...</p>
+        </div>
+        <style jsx>{`
+          .trading-layout {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background-secondary);
+          }
+          .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: var(--foreground-secondary);
+          }
+          .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="trading-layout">
+        <div className="error-container">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="20" stroke="var(--danger)" strokeWidth="2"/>
+            <path d="M24 14v12M24 30v4" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+          <h3>Failed to load trading data</h3>
+          <p>{error}</p>
+        </div>
+        <style jsx>{`
+          .trading-layout {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background-secondary);
+          }
+          .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            text-align: center;
+            color: var(--foreground-secondary);
+          }
+          .error-container h3 {
+            margin: 0;
+            color: var(--danger);
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="trading-layout">

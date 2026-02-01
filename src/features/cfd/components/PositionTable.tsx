@@ -1,27 +1,27 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useCfd, Position } from '../store/cfdStore';
+import React, { useState, useCallback, memo } from 'react';
+import { useCfd, useLivePrices } from '../store/cfdStore';
+import { DisplayPosition as Position } from '../types';
 import { formatCurrency, formatPercentage, getMarginStatus } from '../utils/calculations';
 
 export default function PositionTable() {
-  const { positions, closePosition } = useCfd();
-  const [flashingIds, setFlashingIds] = useState<Record<string, 'positive' | 'negative' | null>>({});
+  const { closePosition } = useCfd();
+  const { livePositions } = useLivePrices();
+  const [closingId, setClosingId] = useState<string | null>(null);
 
-  // Track PnL changes for flash animation
-  useEffect(() => {
-    const newFlashing: Record<string, 'positive' | 'negative' | null> = {};
-    positions.forEach(pos => {
-      if (pos.pnl > 0) newFlashing[pos.id] = 'positive';
-      else if (pos.pnl < 0) newFlashing[pos.id] = 'negative';
-    });
-    setFlashingIds(newFlashing);
-    
-    const timeout = setTimeout(() => setFlashingIds({}), 500);
-    return () => clearTimeout(timeout);
-  }, [positions.map(p => p.markPrice).join(',')]);
+  const handleClose = useCallback(async (positionId: string) => {
+    setClosingId(positionId);
+    try {
+      await closePosition(positionId);
+    } catch (error) {
+      console.error('Failed to close position:', error);
+    } finally {
+      setClosingId(null);
+    }
+  }, [closePosition]);
 
-  if (positions.length === 0) {
+  if (livePositions.length === 0) {
     return (
       <div className="empty-state">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -73,12 +73,12 @@ export default function PositionTable() {
           </tr>
         </thead>
         <tbody>
-          {positions.map(position => (
-            <PositionRow 
+          {livePositions.map(position => (
+            <MemoizedPositionRow 
               key={position.id} 
               position={position} 
-              flash={flashingIds[position.id]}
-              onClose={() => closePosition(position.id)}
+              onClose={handleClose}
+              isClosing={closingId === position.id}
             />
           ))}
         </tbody>
@@ -95,11 +95,11 @@ export default function PositionTable() {
 
 interface PositionRowProps {
   position: Position;
-  flash: 'positive' | 'negative' | null | undefined;
-  onClose: () => void;
+  onClose: (positionId: string) => void;
+  isClosing: boolean;
 }
 
-function PositionRow({ position, flash, onClose }: PositionRowProps) {
+const MemoizedPositionRow = memo(function PositionRow({ position, onClose, isClosing }: PositionRowProps) {
   const marginRatio = (position.pnl / position.margin + 1) * 100;
   const marginStatus = getMarginStatus(marginRatio);
   
@@ -109,7 +109,7 @@ function PositionRow({ position, flash, onClose }: PositionRowProps) {
   const healthPercent = Math.min(100, (currentDistance / priceRange) * 100);
 
   return (
-    <tr className={flash ? `pnl-flash-${flash}` : ''}>
+    <tr>
       <td>
         <div className="symbol-cell">
           <span className="symbol-name">{position.symbol}</span>
@@ -143,8 +143,12 @@ function PositionRow({ position, flash, onClose }: PositionRowProps) {
         {formatPercentage(position.pnlPercentage)}
       </td>
       <td>
-        <button className="close-btn" onClick={onClose}>
-          Close
+        <button 
+          className="close-btn" 
+          onClick={() => onClose(position.id)}
+          disabled={isClosing}
+        >
+          {isClosing ? 'Closing...' : 'Close'}
         </button>
       </td>
 
@@ -233,11 +237,16 @@ function PositionRow({ position, flash, onClose }: PositionRowProps) {
           transition: all 0.2s;
         }
         
-        .close-btn:hover {
+        .close-btn:hover:not(:disabled) {
           background: var(--danger);
           color: white;
+        }
+        
+        .close-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
       `}</style>
     </tr>
   );
-}
+});

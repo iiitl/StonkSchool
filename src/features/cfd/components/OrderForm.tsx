@@ -1,26 +1,27 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { useCfd } from '../store/cfdStore';
+import React, { useState, useMemo, memo } from 'react';
+import { useCfd, useLivePrices } from '../store/cfdStore';
 import { 
   calculateRequiredMargin, 
   calculateLiquidationPrice, 
   formatCurrency 
 } from '../utils/calculations';
 import LeverageSelector from './LeverageSlider';
+import { PositionSide } from '../types';
 
-const ASSETS = ['BTC/USD', 'ETH/USD', 'SOL/USD'];
-
-export default function OrderForm() {
+function OrderForm() {
   const { 
     selectedAsset, 
     selectedLeverage, 
-    prices, 
-    freeMargin,
+    assets,
+    isSubmitting,
     setAsset, 
     setLeverage,
     openPosition 
   } = useCfd();
+
+  const { prices, liveFreeMargin } = useLivePrices();
 
   const [direction, setDirection] = useState<'long' | 'short'>('long');
   const [amountType, setAmountType] = useState<'units' | 'margin'>('units');
@@ -28,9 +29,17 @@ export default function OrderForm() {
   const [stopLoss, setStopLoss] = useState<string>('');
   const [takeProfit, setTakeProfit] = useState<string>('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const price = prices[selectedAsset];
   const entryPrice = direction === 'long' ? price?.ask : price?.bid;
+
+  // Get available assets from API
+  const availableAssets = assets.filter(a => a.is_active);
+
+  // Get max leverage for selected asset
+  const selectedAssetData = assets.find(a => a.symbol === selectedAsset);
+  const maxLeverage = selectedAssetData?.max_leverage || 20;
 
   // Calculate margin and liquidation
   const calculations = useMemo(() => {
@@ -61,27 +70,30 @@ export default function OrderForm() {
     return { margin, liqPrice, actualQty, slLoss, tpProfit };
   }, [amount, amountType, entryPrice, selectedLeverage, direction, stopLoss, takeProfit]);
 
-  const canTrade = calculations.margin > 0 && calculations.margin <= freeMargin;
+  const canTrade = calculations.margin > 0 && calculations.margin <= liveFreeMargin && !isSubmitting;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canTrade) return;
 
-    openPosition({
-      symbol: selectedAsset,
-      direction,
-      quantity: calculations.actualQty,
-      entryPrice: entryPrice || 0,
-      margin: calculations.margin,
-      leverage: selectedLeverage,
-      liquidationPrice: calculations.liqPrice,
-      stopLoss: stopLoss ? parseFloat(stopLoss) : undefined,
-      takeProfit: takeProfit ? parseFloat(takeProfit) : undefined,
-    });
+    setSubmitError(null);
 
-    // Reset form
-    setAmount('0.01');
-    setStopLoss('');
-    setTakeProfit('');
+    try {
+      await openPosition({
+        symbol: selectedAsset,
+        side: direction.toUpperCase() as PositionSide,
+        quantity: calculations.actualQty,
+        leverage: selectedLeverage,
+        stop_loss: stopLoss ? parseFloat(stopLoss) : undefined,
+        take_profit: takeProfit ? parseFloat(takeProfit) : undefined,
+      });
+
+      // Reset form on success
+      setAmount('0.01');
+      setStopLoss('');
+      setTakeProfit('');
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Failed to open position');
+    }
   };
 
   return (
@@ -99,9 +111,13 @@ export default function OrderForm() {
             value={selectedAsset}
             onChange={(e) => setAsset(e.target.value)}
           >
-            {ASSETS.map(asset => (
-              <option key={asset} value={asset}>{asset}</option>
-            ))}
+            {availableAssets.length > 0 ? (
+              availableAssets.map(asset => (
+                <option key={asset.id} value={asset.symbol}>{asset.symbol}</option>
+              ))
+            ) : (
+              <option value={selectedAsset}>{selectedAsset}</option>
+            )}
           </select>
         </div>
 
@@ -127,7 +143,7 @@ export default function OrderForm() {
         </div>
 
         {/* Leverage */}
-        <LeverageSelector value={selectedLeverage} onChange={setLeverage} />
+        <LeverageSelector value={selectedLeverage} onChange={setLeverage} max={maxLeverage} />
 
         {/* Amount */}
         <div className="form-group">
@@ -215,7 +231,7 @@ export default function OrderForm() {
           </div>
           <div className="calc-row">
             <span>Required Margin</span>
-            <span className={`calc-value ${calculations.margin > freeMargin ? 'text-danger' : ''}`}>
+            <span className={`calc-value ${calculations.margin > liveFreeMargin ? 'text-danger' : ''}`}>
               {formatCurrency(calculations.margin)}
             </span>
           </div>
@@ -231,11 +247,15 @@ export default function OrderForm() {
           onClick={handleSubmit}
           disabled={!canTrade}
         >
-          {direction === 'long' ? 'Open Long Position' : 'Open Short Position'}
+          {isSubmitting ? 'Opening...' : direction === 'long' ? 'Open Long Position' : 'Open Short Position'}
         </button>
 
-        {calculations.margin > freeMargin && (
+        {calculations.margin > liveFreeMargin && (
           <p className="error-text">Insufficient free margin</p>
+        )}
+        
+        {submitError && (
+          <p className="error-text">{submitError}</p>
         )}
       </div>
 
@@ -430,3 +450,5 @@ export default function OrderForm() {
     </div>
   );
 }
+
+export default memo(OrderForm);

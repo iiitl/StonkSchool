@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
-import { useCfd } from '../store/cfdStore';
+import React, { memo } from 'react';
+import { useCfd, useLivePrices } from '../store/cfdStore';
 import { formatCurrency, formatPercentage, getMarginStatus } from '../utils/calculations';
 
-export default function WalletBar() {
-  const { balance, equity, usedMargin, freeMargin, marginLevel } = useCfd();
-  const marginStatus = getMarginStatus(marginLevel);
+function WalletBar() {
+  const { balance, usedMargin } = useCfd();
+  const { liveEquity, liveFreeMargin, liveMarginLevel, priceConnected } = useLivePrices();
+  const marginStatus = getMarginStatus(liveMarginLevel);
 
   const getMarginLevelColor = () => {
     switch (marginStatus) {
@@ -25,21 +26,24 @@ export default function WalletBar() {
             <path d="M10 16L14 20L22 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <span className="wallet-title">CFD Trading</span>
+          <span className={`connection-status ${priceConnected ? 'connected' : 'disconnected'}`}>
+            {priceConnected ? '● Live' : '○ Connecting...'}
+          </span>
         </div>
 
         <div className="wallet-metrics">
           <MetricItem label="Balance" value={formatCurrency(balance)} />
           <MetricItem 
             label="Equity" 
-            value={formatCurrency(equity)} 
-            highlight={equity !== balance}
-            positive={equity >= balance}
+            value={formatCurrency(liveEquity)} 
+            highlight={liveEquity !== balance}
+            positive={liveEquity >= balance}
           />
           <MetricItem label="Used Margin" value={formatCurrency(usedMargin)} />
-          <MetricItem label="Free Margin" value={formatCurrency(freeMargin)} />
+          <MetricItem label="Free Margin" value={formatCurrency(liveFreeMargin)} />
           <MetricItem 
             label="Margin Level" 
-            value={formatPercentage(marginLevel, 1).replace('+', '')} 
+            value={formatPercentage(liveMarginLevel, 1).replace('+', '')} 
             className={getMarginLevelColor()}
           />
         </div>
@@ -71,6 +75,23 @@ export default function WalletBar() {
           font-size: 1.125rem;
           font-weight: 700;
           color: var(--foreground);
+        }
+        
+        .connection-status {
+          font-size: 0.7rem;
+          font-weight: 500;
+          padding: 0.25rem 0.5rem;
+          border-radius: var(--radius-sm);
+        }
+        
+        .connection-status.connected {
+          color: var(--success);
+          background: var(--success-light);
+        }
+        
+        .connection-status.disconnected {
+          color: var(--warning);
+          background: var(--warning-light);
         }
         
         .wallet-metrics {
@@ -111,7 +132,7 @@ interface MetricItemProps {
   className?: string;
 }
 
-function MetricItem({ label, value, highlight, positive, className }: MetricItemProps) {
+const MetricItem = memo(function MetricItem({ label, value, highlight, positive, className }: MetricItemProps) {
   return (
     <div className="metric-item">
       <span className="metric-label">{label}</span>
@@ -143,4 +164,6 @@ function MetricItem({ label, value, highlight, positive, className }: MetricItem
       `}</style>
     </div>
   );
-}
+});
+
+export default memo(WalletBar);

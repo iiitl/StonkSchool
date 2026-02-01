@@ -6,11 +6,15 @@ import { useCfd } from '../store/cfdStore';
 interface LeverageSelectorProps {
   value: number;
   onChange: (leverage: number) => void;
+  max?: number;
 }
 
-const LEVERAGE_OPTIONS = [2, 5, 10, 25, 50];
+const ALL_LEVERAGE_OPTIONS = [2, 5, 10, 25, 50];
 
-export default function LeverageSelector({ value, onChange }: LeverageSelectorProps) {
+export default function LeverageSelector({ value, onChange, max = 50 }: LeverageSelectorProps) {
+  // Filter leverage options based on max allowed
+  const LEVERAGE_OPTIONS = ALL_LEVERAGE_OPTIONS.filter(lev => lev <= max);
+  
   return (
     <div className="leverage-selector">
       <label className="input-label">Leverage</label>

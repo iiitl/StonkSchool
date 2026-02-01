@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
-import { useCfd } from '../store/cfdStore';
+import React, { memo } from 'react';
+import { useCfd, useLivePrices } from '../store/cfdStore';
 import { formatCurrency } from '../utils/calculations';
 
-export default function PriceChart() {
-  const { selectedAsset, prices } = useCfd();
+function PriceChart() {
+  const { selectedAsset } = useCfd();
+  const { prices } = useLivePrices();
   const price = prices[selectedAsset];
   const spread = price ? (price.ask - price.bid).toFixed(2) : '0.00';
 
@@ -248,3 +249,5 @@ export default function PriceChart() {
     </div>
   );
 }
+
+export default memo(PriceChart);

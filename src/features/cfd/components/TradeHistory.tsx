@@ -1,7 +1,6 @@
 'use client';
-
-import React from 'react';
-import { useCfd, TradeRecord } from '../store/cfdStore';
+import { useCfd } from '../store/cfdStore';
+import { DisplayTradeRecord as TradeRecord } from '../types';
 import { formatCurrency, formatPercentage } from '../utils/calculations';
 
 export default function TradeHistory() {
@@ -53,7 +52,7 @@ export default function TradeHistory() {
             <th>Exit</th>
             <th>P&L ($)</th>
             <th>P&L (%)</th>
-            <th>Duration</th>
+            <th>Type</th>
             <th>Closed</th>
           </tr>
         </thead>
@@ -78,8 +77,8 @@ interface TradeRowProps {
 }
 
 function TradeRow({ trade }: TradeRowProps) {
-  const duration = getDuration(trade.openTime, trade.closeTime);
   const closeTimeStr = formatTime(trade.closeTime);
+  const typeLabel = getOrderTypeLabel(trade.type);
 
   return (
     <tr>
@@ -103,7 +102,11 @@ function TradeRow({ trade }: TradeRowProps) {
       <td className={`mono pnl ${trade.pnlPercentage >= 0 ? 'positive' : 'negative'}`}>
         {formatPercentage(trade.pnlPercentage)}
       </td>
-      <td className="mono duration">{duration}</td>
+      <td>
+        <span className={`type-badge ${trade.type.toLowerCase().replace('_', '-')}`}>
+          {typeLabel}
+        </span>
+      </td>
       <td className="mono close-time">{closeTimeStr}</td>
 
       <style jsx>{`
@@ -159,8 +162,29 @@ function TradeRow({ trade }: TradeRowProps) {
           font-weight: 600;
         }
         
-        .duration {
+        .type-badge {
+          display: inline-flex;
+          padding: 0.25rem 0.5rem;
+          font-size: 0.65rem;
+          font-weight: 600;
+          border-radius: var(--radius-sm);
+          background: var(--background-tertiary);
           color: var(--foreground-secondary);
+        }
+        
+        .type-badge.stop-loss {
+          background: var(--danger-light);
+          color: var(--danger);
+        }
+        
+        .type-badge.take-profit {
+          background: var(--success-light);
+          color: var(--success);
+        }
+        
+        .type-badge.liquidation {
+          background: var(--danger-light);
+          color: var(--danger);
         }
         
         .close-time {
@@ -172,17 +196,14 @@ function TradeRow({ trade }: TradeRowProps) {
   );
 }
 
-function getDuration(start: Date, end: Date): string {
-  const ms = new Date(end).getTime() - new Date(start).getTime();
-  const hours = Math.floor(ms / (1000 * 60 * 60));
-  const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-  
-  if (hours > 24) {
-    const days = Math.floor(hours / 24);
-    return `${days}d ${hours % 24}h`;
+function getOrderTypeLabel(type: string): string {
+  switch (type) {
+    case 'MARKET_CLOSE': return 'Market';
+    case 'STOP_LOSS': return 'Stop Loss';
+    case 'TAKE_PROFIT': return 'Take Profit';
+    case 'LIQUIDATION': return 'Liquidated';
+    default: return type;
   }
-  
-  return `${hours}h ${minutes}m`;
 }
 
 function formatTime(date: Date): string {

@@ -45,7 +45,7 @@ export function useWebSocketPrices({
     }
   }, []);
 
-  const connect = useCallback(() => {
+  const connect = useCallback(function connect() {
     if (!enabled) return;
     
     // Clean up existing connection
@@ -58,7 +58,6 @@ export function useWebSocketPrices({
       wsRef.current = ws;
 
       ws.onopen = () => {
-
         reconnectDelayRef.current = RECONNECT_DELAY_MS; // Reset delay on successful connect
         onConnectionChangeRef.current?.(true);
       };
@@ -86,15 +85,13 @@ export function useWebSocketPrices({
         console.error('[CFD WS] WebSocket error:', error);
       };
 
-      ws.onclose = (event) => {
-
+      ws.onclose = () => {
         onConnectionChangeRef.current?.(false);
         
         // Attempt reconnection with exponential backoff
         if (enabled) {
           clearReconnectTimeout();
           reconnectTimeoutRef.current = setTimeout(() => {
-
             connect();
             // Exponential backoff with max limit
             reconnectDelayRef.current = Math.min(

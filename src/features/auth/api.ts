@@ -117,7 +117,7 @@ export async function getCurrentUser(token?: string): Promise<User> {
 export async function logout(): Promise<void> {
   try {
     await authFetch<void>('/auth/logout', { method: 'POST' });
-  } catch (error) {
+  } catch {
     // Logout endpoint may not exist, that's okay
     // Client-side cleanup will handle it
     console.warn('Logout endpoint not available, clearing client state only');

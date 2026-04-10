@@ -1,33 +1,34 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useCfd } from '../store/cfdStore';
 import { getMarginStatus } from '../utils/calculations';
 
 export default function MarginCallModal() {
   const { marginLevel, equity, usedMargin } = useCfd();
-  const [isVisible, setIsVisible] = useState(false);
-  const [severity, setSeverity] = useState<'warning' | 'critical'>('warning');
+  const [isDismissed, setIsDismissed] = useState(false);
   
-  useEffect(() => {
-    const status = getMarginStatus(marginLevel);
-    
-    if (status === 'danger' && usedMargin > 0) {
-      setSeverity(marginLevel < 100 ? 'critical' : 'warning');
-      setIsVisible(true);
-    } else if (status === 'warning' && marginLevel < 120 && usedMargin > 0) {
-      setSeverity('warning');
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
+  const status = getMarginStatus(marginLevel);
+  const shouldShow = (status === 'danger' && usedMargin > 0) || 
+                   (status === 'warning' && marginLevel < 120 && usedMargin > 0);
+  
+  const severity = marginLevel < 100 ? 'critical' : 'warning';
+
+  const [lastShouldShow, setLastShouldShow] = useState(shouldShow);
+  if (shouldShow !== lastShouldShow) {
+    setLastShouldShow(shouldShow);
+    if (!shouldShow) {
+      setIsDismissed(false);
     }
-  }, [marginLevel, usedMargin]);
+  }
+
+  const isVisible = shouldShow && !isDismissed;
 
   if (!isVisible) return null;
 
   return (
     <>
-      <div className="modal-backdrop" onClick={() => setIsVisible(false)} />
+      <div className="modal-backdrop" onClick={() => setIsDismissed(true)} />
       <div className={`margin-call-modal ${severity}`}>
         <div className="modal-icon">
           {severity === 'critical' ? (
@@ -69,7 +70,7 @@ export default function MarginCallModal() {
           </div>
         </div>
         
-        <button className="dismiss-btn" onClick={() => setIsVisible(false)}>
+        <button className="dismiss-btn" onClick={() => setIsDismissed(true)}>
           I Understand
         </button>
       </div>

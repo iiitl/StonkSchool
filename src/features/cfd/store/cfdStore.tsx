@@ -5,7 +5,6 @@ import { calculateMarginLevel, calculatePnL, calculatePnLPercentage } from '../u
 import * as api from '../api';
 import { 
   Asset, 
-  ContestParticipant, 
   Position as ApiPosition, 
   Order,
   DisplayPosition, 
@@ -540,7 +539,7 @@ export function useCfd() {
  * Uses subscription pattern to avoid context re-renders
  */
 export function useLivePrices() {
-  const { subscribeToPrices, getCurrentPrices, isPriceConnected, positions, balance, usedMargin } = useCfd();
+  const { subscribeToPrices, positions, balance, usedMargin } = useCfd();
   const [priceData, setPriceData] = useState<PriceData>({
     prices: {},
     priceConnected: false,

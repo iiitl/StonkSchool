@@ -8,7 +8,7 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react';
-import { AuthState, AuthAction, User } from './types';
+import { AuthState, AuthAction } from './types';
 import { getCurrentUser, logout as apiLogout, exchangeCodeForToken } from './api';
 
 // Token storage key for sessionStorage (not localStorage for security)

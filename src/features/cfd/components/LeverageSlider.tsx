@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useCfd } from '../store/cfdStore';
 
 interface LeverageSelectorProps {
   value: number;

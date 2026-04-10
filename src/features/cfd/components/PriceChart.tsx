@@ -21,7 +21,7 @@ function PriceChart() {
           <div className="bid-ask">
             <div className="price-box bid">
               <span className="price-label">BID</span>
-              <span className="price-value">{price?.bid.toLocaleString()}</span>
+              <span className="price-value">{price?.bid?.toLocaleString()}</span>
             </div>
             <div className="spread-indicator">
               <span className="spread-label">Spread</span>
@@ -29,7 +29,7 @@ function PriceChart() {
             </div>
             <div className="price-box ask">
               <span className="price-label">ASK</span>
-              <span className="price-value">{price?.ask.toLocaleString()}</span>
+              <span className="price-value">{price?.ask?.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@ function PriceChart() {
               <span>O: {((price?.bid || 0) - 50).toLocaleString()}</span>
               <span>H: {((price?.ask || 0) + 150).toLocaleString()}</span>
               <span>L: {((price?.bid || 0) - 200).toLocaleString()}</span>
-              <span className="text-profit">C: {price?.bid.toLocaleString()}</span>
+              <span className="text-profit">C: {price?.bid?.toLocaleString()}</span>
             </div>
           </div>
         </div>

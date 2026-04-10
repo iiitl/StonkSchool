@@ -272,7 +272,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
           .map(p => p.id);
 
         if (closedPositionIds.length > 0) {
-          console.log('[CFD Store] Detected auto-closed positions:', closedPositionIds);
+
 
           // Find closing orders for these positions
           const closingOrders = orders.filter(

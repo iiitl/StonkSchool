@@ -58,7 +58,7 @@ export function useWebSocketPrices({
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('[CFD WS] Connected to price feed');
+
         reconnectDelayRef.current = RECONNECT_DELAY_MS; // Reset delay on successful connect
         onConnectionChangeRef.current?.(true);
       };
@@ -87,14 +87,14 @@ export function useWebSocketPrices({
       };
 
       ws.onclose = (event) => {
-        console.log('[CFD WS] Disconnected, code:', event.code);
+
         onConnectionChangeRef.current?.(false);
         
         // Attempt reconnection with exponential backoff
         if (enabled) {
           clearReconnectTimeout();
           reconnectTimeoutRef.current = setTimeout(() => {
-            console.log(`[CFD WS] Attempting reconnection in ${reconnectDelayRef.current}ms`);
+
             connect();
             // Exponential backoff with max limit
             reconnectDelayRef.current = Math.min(

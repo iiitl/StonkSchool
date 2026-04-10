@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { AuthNavbar } from '@/features/auth';
+import { AuthNavbar } from './AuthNavbar';
 
 export function LandingNav() {
   return (

@@ -1,6 +1,8 @@
 'use client';
 
-import { useAuth, LoginButton, UserMenu } from '@/features/auth';
+import { useAuth } from '../AuthContext';
+import { LoginButton } from './LoginButton';
+import { UserMenu } from './UserMenu';
 
 interface AuthNavbarProps {
   variant?: 'light' | 'dark';

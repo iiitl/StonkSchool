@@ -105,8 +105,9 @@ function OrderForm() {
       <div className="card-body">
         {/* Asset Selector */}
         <div className="form-group">
-          <label className="input-label">Asset</label>
+          <label className="input-label" htmlFor="asset-select">Asset</label>
           <select 
+            id="asset-select"
             className="input asset-select"
             value={selectedAsset}
             onChange={(e) => setAsset(e.target.value)}
@@ -123,8 +124,8 @@ function OrderForm() {
 
         {/* Direction Buttons */}
         <div className="form-group">
-          <label className="input-label">Direction</label>
-          <div className="direction-buttons">
+          <label className="input-label" id="direction-label">Direction</label>
+          <div className="direction-buttons" role="radiogroup" aria-labelledby="direction-label">
             <button 
               className={`direction-btn long ${direction === 'long' ? 'active' : ''}`}
               onClick={() => setDirection('long')}
@@ -148,7 +149,7 @@ function OrderForm() {
         {/* Amount */}
         <div className="form-group">
           <div className="amount-header">
-            <label className="input-label">Amount</label>
+            <label className="input-label" htmlFor="amount-input">Amount</label>
             <div className="amount-toggle">
               <button 
                 className={`toggle-btn ${amountType === 'units' ? 'active' : ''}`}
@@ -165,6 +166,7 @@ function OrderForm() {
             </div>
           </div>
           <input
+            id="amount-input"
             type="number"
             className="input"
             value={amount}
@@ -186,8 +188,9 @@ function OrderForm() {
           <div className="advanced-options">
             <div className="sl-tp-row">
               <div className="form-group">
-                <label className="input-label">Stop Loss</label>
+                <label className="input-label" htmlFor="sl-input">Stop Loss</label>
                 <input
+                  id="sl-input"
                   type="number"
                   className="input"
                   placeholder="Price"
@@ -201,8 +204,9 @@ function OrderForm() {
                 )}
               </div>
               <div className="form-group">
-                <label className="input-label">Take Profit</label>
+                <label className="input-label" htmlFor="tp-input">Take Profit</label>
                 <input
+                  id="tp-input"
                   type="number"
                   className="input"
                   placeholder="Price"

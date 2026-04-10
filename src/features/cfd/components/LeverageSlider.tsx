@@ -17,8 +17,8 @@ export default function LeverageSelector({ value, onChange, max = 50 }: Leverage
   
   return (
     <div className="leverage-selector">
-      <label className="input-label">Leverage</label>
-      <div className="leverage-options">
+      <label className="input-label" id="leverage-label">Leverage</label>
+      <div className="leverage-options" role="radiogroup" aria-labelledby="leverage-label">
         {LEVERAGE_OPTIONS.map(lev => (
           <button
             key={lev}

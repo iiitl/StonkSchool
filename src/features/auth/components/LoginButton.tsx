@@ -109,7 +109,7 @@ export function LoginButton({ className = '', variant = 'primary' }: LoginButton
       </button>
       
       {error && (
-        <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-red-400 text-sm text-center">
+        <div role="alert" className="absolute top-full left-0 right-0 mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded text-red-400 text-sm text-center">
           {error}
         </div>
       )}

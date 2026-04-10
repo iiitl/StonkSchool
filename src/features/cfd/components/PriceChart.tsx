@@ -34,7 +34,6 @@ function PriceChart() {
           </div>
         </div>
       </div>
-
       <div className="chart-area">
         <div className="chart-placeholder">
           <svg className="chart-visual" viewBox="0 0 400 200" preserveAspectRatio="none">

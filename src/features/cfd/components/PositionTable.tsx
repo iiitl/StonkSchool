@@ -15,7 +15,7 @@ export default function PositionTable() {
     try {
       await closePosition(positionId);
     } catch (error) {
-      console.error('Failed to close position:', error);
+
     } finally {
       setClosingId(null);
     }

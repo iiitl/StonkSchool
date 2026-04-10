@@ -231,7 +231,6 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
          selectedAsset: assets.find(a => a.symbol === 'ETH/USD')?.symbol
           ?? (assets.length > 0 ? assets[0].symbol : ''),
     } catch (error) {
-      console.error('[CFD Store] Failed to load data:', error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -272,7 +271,6 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
           .map(p => p.id);
 
         if (closedPositionIds.length > 0) {
-          console.log('[CFD Store] Detected auto-closed positions:', closedPositionIds);
 
           // Find closing orders for these positions
           const closingOrders = orders.filter(
@@ -328,7 +326,6 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         }
       } catch (error) {
         // Silently log polling errors - don't disrupt UI
-        console.error('[CFD Store] Position poll error:', error);
       }
     };
 
@@ -387,7 +384,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         freeMargin: prev.freeMargin - displayPos.margin,
       }));
     } catch (error) {
-      console.error('[CFD Store] Failed to open position:', error);
+
       setState(prev => ({
         ...prev,
         isSubmitting: false,
@@ -440,7 +437,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         balance: prev.balance + position.margin + result.realized_pnl,
       }));
     } catch (error) {
-      console.error('[CFD Store] Failed to close position:', error);
+
       setState(prev => ({
         ...prev,
         isSubmitting: false,
@@ -465,7 +462,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
       try {
         callback(priceData);
       } catch (e) {
-        console.error('[CFD Store] Price subscriber error:', e);
+
       }
     });
   }, []);

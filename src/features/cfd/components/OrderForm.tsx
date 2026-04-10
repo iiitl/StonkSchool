@@ -251,11 +251,11 @@ function OrderForm() {
         </button>
 
         {calculations.margin > liveFreeMargin && (
-          <p className="error-text">Insufficient free margin</p>
+          <p role="alert" className="error-text">Insufficient free margin</p>
         )}
         
         {submitError && (
-          <p className="error-text">{submitError}</p>
+          <p role="alert" className="error-text">{submitError}</p>
         )}
       </div>
 

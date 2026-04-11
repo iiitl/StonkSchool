@@ -230,6 +230,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         isLiquidated: participant.is_liquidated,
          selectedAsset: assets.find(a => a.symbol === 'ETH/USD')?.symbol
           ?? (assets.length > 0 ? assets[0].symbol : ''),
+      }));
     } catch (error) {
       console.error('[CFD Store] Failed to load data:', error);
       setState(prev => ({

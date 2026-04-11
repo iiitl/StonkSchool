@@ -72,10 +72,49 @@ function OrderForm() {
 
   const canTrade = calculations.margin > 0 && calculations.margin <= liveFreeMargin && !isSubmitting;
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!canTrade) return;
 
     setSubmitError(null);
+
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      setSubmitError('Amount must be a positive number');
+      return;
+    }
+
+    if (stopLoss !== '') {
+      const parsedSL = parseFloat(stopLoss);
+      if (isNaN(parsedSL) || parsedSL < 0) {
+        setSubmitError('Stop Loss must be a positive number');
+        return;
+      }
+      if (direction === 'long' && parsedSL >= (entryPrice || 0)) {
+        setSubmitError('Stop Loss must be below entry price for Long positions');
+        return;
+      }
+      if (direction === 'short' && parsedSL <= (entryPrice || 0)) {
+        setSubmitError('Stop Loss must be above entry price for Short positions');
+        return;
+      }
+    }
+
+    if (takeProfit !== '') {
+      const parsedTP = parseFloat(takeProfit);
+      if (isNaN(parsedTP) || parsedTP < 0) {
+        setSubmitError('Take Profit must be a positive number');
+        return;
+      }
+      if (direction === 'long' && parsedTP <= (entryPrice || 0)) {
+        setSubmitError('Take Profit must be above entry price for Long positions');
+        return;
+      }
+      if (direction === 'short' && parsedTP >= (entryPrice || 0)) {
+        setSubmitError('Take Profit must be below entry price for Short positions');
+        return;
+      }
+    }
 
     try {
       await openPosition({
@@ -97,7 +136,7 @@ function OrderForm() {
   };
 
   return (
-    <div className="order-form">
+    <form className="order-form" onSubmit={handleSubmit}>
       <div className="card-header">
         <span>New Position</span>
       </div>
@@ -127,6 +166,7 @@ function OrderForm() {
           <label className="input-label" id="direction-label">Direction</label>
           <div className="direction-buttons" role="radiogroup" aria-labelledby="direction-label">
             <button 
+              type="button"
               className={`direction-btn long ${direction === 'long' ? 'active' : ''}`}
               onClick={() => setDirection('long')}
             >
@@ -134,6 +174,7 @@ function OrderForm() {
               Long (Buy)
             </button>
             <button 
+              type="button"
               className={`direction-btn short ${direction === 'short' ? 'active' : ''}`}
               onClick={() => setDirection('short')}
             >
@@ -152,12 +193,14 @@ function OrderForm() {
             <label className="input-label" htmlFor="amount-input">Amount</label>
             <div className="amount-toggle">
               <button 
+                type="button"
                 className={`toggle-btn ${amountType === 'units' ? 'active' : ''}`}
                 onClick={() => setAmountType('units')}
               >
                 Units
               </button>
               <button 
+                type="button"
                 className={`toggle-btn ${amountType === 'margin' ? 'active' : ''}`}
                 onClick={() => setAmountType('margin')}
               >
@@ -178,6 +221,7 @@ function OrderForm() {
 
         {/* Advanced Options */}
         <button 
+          type="button"
           className="advanced-toggle"
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
@@ -247,8 +291,8 @@ function OrderForm() {
 
         {/* Submit Button */}
         <button 
+          type="submit"
           className={`submit-btn ${direction === 'long' ? 'btn-buy' : 'btn-sell'}`}
-          onClick={handleSubmit}
           disabled={!canTrade}
         >
           {isSubmitting ? 'Opening...' : direction === 'long' ? 'Open Long Position' : 'Open Short Position'}
@@ -451,7 +495,7 @@ function OrderForm() {
           margin-top: 0.5rem;
         }
       `}</style>
-    </div>
+    </form>
   );
 }
 

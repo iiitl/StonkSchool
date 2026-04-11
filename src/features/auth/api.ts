@@ -2,7 +2,7 @@
 // Designed for httpOnly cookie authentication
 
 import { AuthResponse, GoogleLoginUrlResponse, User } from './types';
-
+import { devLog } from "../../utils/logger";
 const AUTH_API_URL = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:3001';
 const REQUEST_TIMEOUT = 10000; // 10 second timeout for security
 
@@ -120,7 +120,8 @@ export async function logout(): Promise<void> {
   } catch (error) {
     // Logout endpoint may not exist, that's okay
     // Client-side cleanup will handle it
-    console.warn('Logout endpoint not available, clearing client state only');
+    devLog("message", error);
+
   }
 }
 

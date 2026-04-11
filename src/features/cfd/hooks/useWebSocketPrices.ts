@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { PriceUpdate } from '../types';
-
+import { devLog } from "../../../utils/logger";
 const WS_URL = process.env.NEXT_PUBLIC_CFD_WS_URL || 'ws://localhost:3002/ws/prices';
 const RECONNECT_DELAY_MS = 2000;
 const MAX_RECONNECT_DELAY_MS = 30000;
@@ -78,12 +78,12 @@ export function useWebSocketPrices({
             onPriceUpdateRef.current?.({ ...pricesRef.current });
           }
         } catch (error) {
-          console.error('[CFD WS] Failed to parse message:', error);
+          devLog("[Auth] Logout endpoint issue:", error);
         }
       };
 
       ws.onerror = (error) => {
-        console.error('[CFD WS] WebSocket error:', error);
+        devLog("[Auth] Logout endpoint issue:", error);
       };
 
       ws.onclose = (event) => {
@@ -105,7 +105,7 @@ export function useWebSocketPrices({
         }
       };
     } catch (error) {
-      console.error('[CFD WS] Failed to create WebSocket:', error);
+      devLog("[Auth] Logout endpoint issue:", error);
     }
   }, [enabled, clearReconnectTimeout]);
 

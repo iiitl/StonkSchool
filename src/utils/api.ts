@@ -36,7 +36,16 @@ export async function sharedFetch<T, E extends Error>(
       );
     }
 
-    return response.json();
+    const text = await response.text();
+    if (!text) {
+      return {} as T;
+    }
+
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      throw new ErrorClass('Invalid JSON response', response.status, 'PARSE_ERROR');
+    }
   } catch (error) {
     clearTimeout(timeoutId);
 

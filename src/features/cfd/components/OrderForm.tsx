@@ -70,12 +70,17 @@ function OrderForm() {
     return { margin, liqPrice, actualQty, slLoss, tpProfit };
   }, [amount, amountType, entryPrice, selectedLeverage, direction, stopLoss, takeProfit]);
 
-  const canTrade = calculations.margin > 0 && calculations.margin <= liveFreeMargin && !isSubmitting;
+  const canTrade = calculations.margin > 0 && calculations.margin <= liveFreeMargin && !isSubmitting && entryPrice !== undefined;
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
     setSubmitError(null);
+
+    if (entryPrice === undefined) {
+      setSubmitError('Live price unavailable');
+      return;
+    }
 
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
@@ -89,15 +94,13 @@ function OrderForm() {
         setSubmitError('Stop Loss must be a positive number');
         return;
       }
-      if (entryPrice !== undefined) {
-        if (direction === 'long' && parsedSL >= entryPrice) {
-          setSubmitError('Stop Loss must be below entry price for Long positions');
-          return;
-        }
-        if (direction === 'short' && parsedSL <= entryPrice) {
-          setSubmitError('Stop Loss must be above entry price for Short positions');
-          return;
-        }
+      if (direction === 'long' && parsedSL >= entryPrice) {
+        setSubmitError('Stop Loss must be below entry price for Long positions');
+        return;
+      }
+      if (direction === 'short' && parsedSL <= entryPrice) {
+        setSubmitError('Stop Loss must be above entry price for Short positions');
+        return;
       }
     }
 
@@ -107,15 +110,13 @@ function OrderForm() {
         setSubmitError('Take Profit must be a positive number');
         return;
       }
-      if (entryPrice !== undefined) {
-        if (direction === 'long' && parsedTP <= entryPrice) {
-          setSubmitError('Take Profit must be above entry price for Long positions');
-          return;
-        }
-        if (direction === 'short' && parsedTP >= entryPrice) {
-          setSubmitError('Take Profit must be below entry price for Short positions');
-          return;
-        }
+      if (direction === 'long' && parsedTP <= entryPrice) {
+        setSubmitError('Take Profit must be above entry price for Long positions');
+        return;
+      }
+      if (direction === 'short' && parsedTP >= entryPrice) {
+        setSubmitError('Take Profit must be below entry price for Short positions');
+        return;
       }
     }
 

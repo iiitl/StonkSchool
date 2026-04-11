@@ -13,6 +13,7 @@ import {
   UpdatePositionRequest,
   ClosePositionResponse,
 } from './types';
+import { sharedFetch } from '../../utils/api';
 
 const CFD_API_URL = process.env.NEXT_PUBLIC_CFD_API_URL || 'http://localhost:3002';
 const REQUEST_TIMEOUT = 15000; // 15 second timeout
@@ -35,49 +36,12 @@ async function cfdFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
-
-  try {
-    const response = await fetch(`${CFD_API_URL}${endpoint}`, {
-      ...options,
-      signal: controller.signal,
-      credentials: 'include', // Include httpOnly cookies for auth
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new CfdApiError(
-        error.error || `Request failed with status ${response.status}`,
-        response.status,
-        error.code
-      );
-    }
-
-    return response.json();
-  } catch (error) {
-    clearTimeout(timeoutId);
-
-    if (error instanceof CfdApiError) {
-      throw error;
-    }
-
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new CfdApiError('Request timed out', 408, 'TIMEOUT');
-    }
-
-    throw new CfdApiError(
-      error instanceof Error ? error.message : 'Network error',
-      0,
-      'NETWORK_ERROR'
-    );
-  }
+  return sharedFetch<T, CfdApiError>(
+    `${CFD_API_URL}${endpoint}`,
+    options,
+    REQUEST_TIMEOUT,
+    CfdApiError
+  );
 }
 
 // ============== Assets API ==============

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef, ReactNode } from 'react';
 import { calculateMarginLevel, calculatePnL, calculatePnLPercentage } from '../utils/calculations';
 import * as api from '../api';
-import { 
+import { devLog } from "../../../utils/logger";import { 
   Asset, 
   ContestParticipant, 
   Position as ApiPosition, 
@@ -232,9 +232,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
           ?? (assets.length > 0 ? assets[0].symbol : ''),
       }));
     } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-      console.error('[CFD Store] Failed to load data:', error);
-      }
+      devLog("[Auth] Logout endpoint issue:", error);
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -331,9 +329,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         }
       } catch (error) {
         // Silently log polling errors - don't disrupt UI
-        if (process.env.NODE_ENV === "development") {
-        console.error('[CFD Store] Position poll error:', error);
-        }
+        devLog("[Auth] Logout endpoint issue:", error);
       }
     };
 
@@ -392,9 +388,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         freeMargin: prev.freeMargin - displayPos.margin,
       }));
     } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-      console.error('[CFD Store] Failed to open position:', error);
-      }
+      devLog("[Auth] Logout endpoint issue:", error);
       setState(prev => ({
         ...prev,
         isSubmitting: false,
@@ -447,9 +441,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         balance: prev.balance + position.margin + result.realized_pnl,
       }));
     } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-      console.error('[CFD Store] Failed to close position:', error);
-      }
+      devLog("[Auth] Logout endpoint issue:", error);
       setState(prev => ({
         ...prev,
         isSubmitting: false,
@@ -474,9 +466,7 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
       try {
         callback(priceData);
       } catch (e) {
-        if (process.env.NODE_ENV === "development") {
-        console.error('[CFD Store] Price subscriber error:', e);
-        }
+        devLog("[Auth] Logout endpoint issue:", e);
       }
     });
   }, []);

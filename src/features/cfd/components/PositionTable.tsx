@@ -4,7 +4,7 @@ import React, { useState, useCallback, memo } from 'react';
 import { useCfd, useLivePrices } from '../store/cfdStore';
 import { DisplayPosition as Position } from '../types';
 import { formatCurrency, formatPercentage, getMarginStatus } from '../utils/calculations';
-
+import { devLog } from "../../../utils/logger";
 export default function PositionTable() {
   const { closePosition } = useCfd();
   const { livePositions } = useLivePrices();
@@ -15,9 +15,7 @@ export default function PositionTable() {
     try {
       await closePosition(positionId);
     } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-      console.error('Failed to close position:', error);
-      }
+      devLog("[Auth] Logout endpoint issue:", error);
     } finally {
       setClosingId(null);
     }

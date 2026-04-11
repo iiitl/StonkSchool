@@ -74,7 +74,6 @@ function OrderForm() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!canTrade) return;
 
     setSubmitError(null);
 
@@ -90,13 +89,15 @@ function OrderForm() {
         setSubmitError('Stop Loss must be a positive number');
         return;
       }
-      if (direction === 'long' && parsedSL >= (entryPrice || 0)) {
-        setSubmitError('Stop Loss must be below entry price for Long positions');
-        return;
-      }
-      if (direction === 'short' && parsedSL <= (entryPrice || 0)) {
-        setSubmitError('Stop Loss must be above entry price for Short positions');
-        return;
+      if (entryPrice !== undefined) {
+        if (direction === 'long' && parsedSL >= entryPrice) {
+          setSubmitError('Stop Loss must be below entry price for Long positions');
+          return;
+        }
+        if (direction === 'short' && parsedSL <= entryPrice) {
+          setSubmitError('Stop Loss must be above entry price for Short positions');
+          return;
+        }
       }
     }
 
@@ -106,15 +107,19 @@ function OrderForm() {
         setSubmitError('Take Profit must be a positive number');
         return;
       }
-      if (direction === 'long' && parsedTP <= (entryPrice || 0)) {
-        setSubmitError('Take Profit must be above entry price for Long positions');
-        return;
-      }
-      if (direction === 'short' && parsedTP >= (entryPrice || 0)) {
-        setSubmitError('Take Profit must be below entry price for Short positions');
-        return;
+      if (entryPrice !== undefined) {
+        if (direction === 'long' && parsedTP <= entryPrice) {
+          setSubmitError('Take Profit must be above entry price for Long positions');
+          return;
+        }
+        if (direction === 'short' && parsedTP >= entryPrice) {
+          setSubmitError('Take Profit must be below entry price for Short positions');
+          return;
+        }
       }
     }
+
+    if (!canTrade) return;
 
     try {
       await openPosition({

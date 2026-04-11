@@ -2,6 +2,7 @@
 // Designed for httpOnly cookie authentication
 
 import { AuthResponse, GoogleLoginUrlResponse, User } from './types';
+import { sharedFetch } from '../../utils/api';
 
 const AUTH_API_URL = process.env.NEXT_PUBLIC_AUTH_API_URL || 'http://localhost:3001';
 const REQUEST_TIMEOUT = 10000; // 10 second timeout for security
@@ -24,49 +25,12 @@ async function authFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
-
-  try {
-    const response = await fetch(`${AUTH_API_URL}${endpoint}`, {
-      ...options,
-      signal: controller.signal,
-      credentials: 'include', // Always include cookies for httpOnly support
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new AuthApiError(
-        error.error || `Request failed with status ${response.status}`,
-        response.status,
-        error.code
-      );
-    }
-
-    return response.json();
-  } catch (error) {
-    clearTimeout(timeoutId);
-    
-    if (error instanceof AuthApiError) {
-      throw error;
-    }
-    
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new AuthApiError('Request timed out', 408, 'TIMEOUT');
-    }
-    
-    throw new AuthApiError(
-      error instanceof Error ? error.message : 'Network error',
-      0,
-      'NETWORK_ERROR'
-    );
-  }
+  return sharedFetch<T, AuthApiError>(
+    `${AUTH_API_URL}${endpoint}`,
+    options,
+    REQUEST_TIMEOUT,
+    AuthApiError
+  );
 }
 
 /**

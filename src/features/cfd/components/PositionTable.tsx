@@ -15,7 +15,9 @@ export default function PositionTable() {
     try {
       await closePosition(positionId);
     } catch (error) {
+      if (process.env.NODE_ENV === "development") {
       console.error('Failed to close position:', error);
+      }
     } finally {
       setClosingId(null);
     }

@@ -78,12 +78,16 @@ export function useWebSocketPrices({
             onPriceUpdateRef.current?.({ ...pricesRef.current });
           }
         } catch (error) {
+          if (process.env.NODE_ENV === "development") {
           console.error('[CFD WS] Failed to parse message:', error);
+          }
         }
       };
 
       ws.onerror = (error) => {
+        if (process.env.NODE_ENV === "development") {
         console.error('[CFD WS] WebSocket error:', error);
+        }
       };
 
       ws.onclose = (event) => {
@@ -105,7 +109,9 @@ export function useWebSocketPrices({
         }
       };
     } catch (error) {
+      if (process.env.NODE_ENV === "development") {
       console.error('[CFD WS] Failed to create WebSocket:', error);
+      }
     }
   }, [enabled, clearReconnectTimeout]);
 

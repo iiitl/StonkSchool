@@ -120,7 +120,9 @@ export async function logout(): Promise<void> {
   } catch (error) {
     // Logout endpoint may not exist, that's okay
     // Client-side cleanup will handle it
+    if (process.env.NODE_ENV === "development") {
     console.warn('Logout endpoint not available, clearing client state only');
+    }
   }
 }
 

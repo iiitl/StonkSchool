@@ -228,10 +228,13 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         freeMargin,
         marginLevel,
         isLiquidated: participant.is_liquidated,
-         selectedAsset: assets.find(a => a.symbol === 'ETH/USD')?.symbol
+        selectedAsset: assets.find(a => a.symbol === 'ETH/USD')?.symbol
           ?? (assets.length > 0 ? assets[0].symbol : ''),
+      }));
     } catch (error) {
+      if (process.env.NODE_ENV === "development") {
       console.error('[CFD Store] Failed to load data:', error);
+      }
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -328,7 +331,9 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         }
       } catch (error) {
         // Silently log polling errors - don't disrupt UI
+        if (process.env.NODE_ENV === "development") {
         console.error('[CFD Store] Position poll error:', error);
+        }
       }
     };
 
@@ -387,7 +392,9 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         freeMargin: prev.freeMargin - displayPos.margin,
       }));
     } catch (error) {
+      if (process.env.NODE_ENV === "development") {
       console.error('[CFD Store] Failed to open position:', error);
+      }
       setState(prev => ({
         ...prev,
         isSubmitting: false,
@@ -440,7 +447,9 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
         balance: prev.balance + position.margin + result.realized_pnl,
       }));
     } catch (error) {
+      if (process.env.NODE_ENV === "development") {
       console.error('[CFD Store] Failed to close position:', error);
+      }
       setState(prev => ({
         ...prev,
         isSubmitting: false,
@@ -465,7 +474,9 @@ export function CfdProvider({ children, initialContestId }: { children: ReactNod
       try {
         callback(priceData);
       } catch (e) {
+        if (process.env.NODE_ENV === "development") {
         console.error('[CFD Store] Price subscriber error:', e);
+        }
       }
     });
   }, []);

@@ -9,13 +9,16 @@ export default function PositionTable() {
   const { closePosition } = useCfd();
   const { livePositions } = useLivePrices();
   const [closingId, setClosingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleClose = useCallback(async (positionId: string) => {
     setClosingId(positionId);
+    setError(null);
     try {
       await closePosition(positionId);
-    } catch (error) {
-      console.error('Failed to close position:', error);
+    } catch (err: any) {
+      console.error('Failed to close position:', err);
+      setError(err?.message || 'Failed to close position. Please try again.');
     } finally {
       setClosingId(null);
     }
@@ -57,6 +60,16 @@ export default function PositionTable() {
 
   return (
     <div className="position-table-wrapper">
+      {error && (
+        <div className="error-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4m0 4h.01"/>
+          </svg>
+          <span>{error}</span>
+          <button className="dismiss-btn" onClick={() => setError(null)}>✕</button>
+        </div>
+      )}
       <table className="table">
         <thead>
           <tr>
@@ -87,6 +100,40 @@ export default function PositionTable() {
       <style jsx>{`
         .position-table-wrapper {
           overflow-x: auto;
+        }
+        
+        .error-banner {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1rem;
+          margin-bottom: 1rem;
+          background: var(--danger-light);
+          color: var(--danger);
+          border-radius: var(--radius-sm);
+          font-size: 0.875rem;
+          font-weight: 500;
+        }
+        
+        .error-banner span {
+          flex: 1;
+        }
+        
+        .dismiss-btn {
+          background: transparent;
+          border: none;
+          color: currentColor;
+          cursor: pointer;
+          opacity: 0.7;
+          padding: 0.25rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: opacity 0.2s;
+        }
+        
+        .dismiss-btn:hover {
+          opacity: 1;
         }
       `}</style>
     </div>

@@ -61,13 +61,13 @@ export default function PositionTable() {
   return (
     <div className="position-table-wrapper">
       {error && (
-        <div className="error-banner">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <div className="error-banner" role="alert" aria-live="assertive">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/>
             <path d="M12 8v4m0 4h.01"/>
           </svg>
           <span>{error}</span>
-          <button className="dismiss-btn" onClick={() => setError(null)}>✕</button>
+          <button type="button" aria-label="Dismiss error" className="dismiss-btn" onClick={() => setError(null)}>✕</button>
         </div>
       )}
       <table className="table">

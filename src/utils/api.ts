@@ -25,8 +25,6 @@ export async function sharedFetch<T, E extends Error>(
       },
     });
 
-    clearTimeout(timeoutId);
-
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Unknown error' }));
       throw new ErrorClass(
@@ -47,8 +45,6 @@ export async function sharedFetch<T, E extends Error>(
       throw new ErrorClass('Invalid JSON response', response.status, 'PARSE_ERROR');
     }
   } catch (error) {
-    clearTimeout(timeoutId);
-
     if (error instanceof ErrorClass) {
       throw error;
     }
@@ -62,5 +58,7 @@ export async function sharedFetch<T, E extends Error>(
       0,
       'NETWORK_ERROR'
     );
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

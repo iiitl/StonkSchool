@@ -1,8 +1,10 @@
+/* Landing Page Styles */
 .landing-page {
   min-height: 100vh;
   background: var(--background);
 }
 
+/* Navigation */
 .nav {
   display: flex;
   justify-content: space-between;
@@ -41,6 +43,7 @@
   color: var(--primary);
 }
 
+/* Hero */
 .hero {
   padding: 2rem 2rem 4rem;
   max-width: 1200px;
@@ -170,6 +173,7 @@
   background: var(--border);
 }
 
+/* Trading Preview */
 .hero-visual {
   display: flex;
   justify-content: center;
@@ -274,6 +278,7 @@
   color: white;
 }
 
+/* Features */
 .features-section {
   padding: 5rem 2rem;
   background: var(--background-secondary);
@@ -327,6 +332,7 @@
   margin: 0;
 }
 
+/* Safety */
 .safety-section {
   padding: 5rem 2rem;
   max-width: 800px;
@@ -361,6 +367,7 @@
   color: var(--foreground);
 }
 
+/* CTA */
 .cta-section {
   text-align: center;
   padding: 5rem 2rem;
@@ -380,6 +387,7 @@
   margin: 0 0 2rem;
 }
 
+/* Footer */
 .footer {
   padding: 2rem;
   background: var(--background-secondary);
